@@ -2,10 +2,8 @@ const BASE_URL = "https://script.google.com/macros/s/AKfycbwiTSeahRXSg6EyVA_u4X_
 
 let usuarioLogado = {};
 
-
 // ================= FORMATADORES =================
 function formatarData(valor) {
-
   if (!valor) return "";
 
   if (typeof valor === "string" && valor.includes("/")) {
@@ -21,9 +19,7 @@ function formatarData(valor) {
   }
 }
 
-
 function formatarHora(valor) {
-
   if (!valor) return "";
 
   if (typeof valor === "string" && valor.includes(":") && valor.length <= 5) {
@@ -116,7 +112,7 @@ function aplicarTema(empresa) {
 }
 
 
-// ================= AJUSTAR CHAT CIA =================
+// ================= AJUSTAR CHAT =================
 function ajustarChatCia() {
 
   const chatBox = document.querySelector("#sidebarForm .chat-box");
@@ -133,7 +129,7 @@ function ajustarChatCia() {
 }
 
 
-// ================= ENVIAR MENSAGEM CIA =================
+// ================= CHAT CIA =================
 function enviarMensagem() {
 
   const input = document.getElementById("inputMensagemCia");
@@ -158,7 +154,7 @@ function enviarMensagem() {
 }
 
 
-// ================= ENVIAR MENSAGEM GRU =================
+// ================= CHAT GRU =================
 function enviarMensagemGRU(empresa) {
 
   const input = document.getElementById("input" + empresa);
@@ -207,7 +203,6 @@ function carregarMensagens() {
 
         const remetente = linha[3];
         const mensagem = linha[4];
-
         const classe = (remetente === usuarioLogado.nome) ? "me" : "other";
 
         chat.innerHTML += `
@@ -241,7 +236,6 @@ function carregarMensagens() {
 
           const remetente = linha[3];
           const mensagem = linha[4];
-
           const classe = (remetente === "GRU") ? "me" : "other";
 
           chat.innerHTML += `
@@ -314,24 +308,22 @@ function carregarTabela() {
 
     dados.forEach((linha, index) => {
 
-      // filtro por empresa
       if (usuarioLogado.empresa !== "GRU" && linha[11] !== usuarioLogado.empresa) return;
 
-      // LOGO DA CIA
       let logo = "";
       if (linha[11] === "LATAM") logo = "logo_latam.png";
       if (linha[11] === "GOL") logo = "logo_gol.png";
       if (linha[11] === "AZUL") logo = "logo_azul.png";
 
-      // STATUS
-      let statusHTML = linha[9];
+      let statusValor = String(linha[9]).trim();
+      let statusHTML = statusValor;
 
       if (usuarioLogado.empresa === "GRU") {
         statusHTML = `
           <select onchange="atualizarStatus(${index}, this.value)">
-            <option ${linha[9] === "Pendente" ? "selected" : ""}>Pendente</option>
-            <option ${linha[9] === "Liberado" ? "selected" : ""}>Liberado</option>
-            <option ${linha[9] === "Negado" ? "selected" : ""}>Negado</option>
+            <option ${statusValor === "Pendente" ? "selected" : ""}>Pendente</option>
+            <option ${statusValor === "Liberado" ? "selected" : ""}>Liberado</option>
+            <option ${statusValor === "Negado" ? "selected" : ""}>Negado</option>
           </select>
         `;
       }
@@ -339,27 +331,40 @@ function carregarTabela() {
       tabela.innerHTML += `
         <tr>
           <td>${formatarData(linha[0])}</td>
-          <td>${formatarHora(linha[1])}</td>          
+          <td>${formatarHora(linha[1])}</td>
           <td>${linha[10]}</td>
-
-          <!-- 🔥 LOGO CORRETO -->
           <td><img src="${logo}" class="logo-tabela"></td>
-
           <td>${linha[2]}</td>
           <td>${linha[3]}</td>
-          <td>${linha[4]}</td>
+          <td>${formatarHora(linha[4])}</td>
           <td>${linha[5]}</td>
-          <td>${linha[6]}</td>
+          <td>${formatarHora(linha[6])}</td>
           <td>${linha[7]}</td>
-          <td>${linha[8]}</td>  
-
-          <!-- 🔥 STATUS CORRETO -->
+          <td>${linha[8]}</td>
           <td>${statusHTML}</td>
         </tr>
       `;
-
     });
 
+  });
+}
+
+
+// ================= ATUALIZAR STATUS =================
+function atualizarStatus(linhaIndex, novoStatus) {
+
+  fetch(BASE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      action: "atualizarStatus",
+      linha: linhaIndex + 2,
+      status: novoStatus
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
+    carregarTabela();
   });
 }
 
@@ -373,3 +378,4 @@ function atualizarDataHora() {
 }
 
 setInterval(atualizarDataHora, 1000);
+setInterval(carregarTabela, 5000);
