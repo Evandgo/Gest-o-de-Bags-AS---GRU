@@ -146,9 +146,10 @@ async function carregarTabela() {
 
   const filtroData = document.getElementById("filtroData")?.value || getHoje();
 
-  let url = `${SUPABASE_URL}requisicoes?select=*&data=eq.${encodeURIComponent(filtroData)}&order=hora.desc`;
+  const res = await fetch(`${SUPABASE_URL}requisicoes?select=*`, {
+    headers: HEADERS
+  });
 
-  const res = await fetch(url, { headers: HEADERS });
   const dados = await res.json();
 
   const tabela = document.getElementById("tabela-requisicoes");
@@ -156,7 +157,7 @@ async function carregarTabela() {
 
   dados.forEach((linha) => {
 
-    // 🔥 garantia extra (resolve bug que você teve)
+    // 🔥 FILTRO REAL (AQUI ESTÁ A SOLUÇÃO)
     if (linha.data !== filtroData) return;
 
     if (usuarioLogado.empresa !== "GRU" && linha.empresa !== usuarioLogado.empresa) return;
@@ -214,9 +215,10 @@ async function carregarMensagens() {
 
   const filtroData = document.getElementById("filtroData")?.value || getHoje();
 
-  let url = `${SUPABASE_URL}chat?select=*&data=eq.${encodeURIComponent(filtroData)}`;
+  const res = await fetch(`${SUPABASE_URL}chat?select=*`, {
+    headers: HEADERS
+  });
 
-  const res = await fetch(url, { headers: HEADERS });
   const dados = await res.json();
 
   const chat = document.getElementById("chatMessagesCia");
