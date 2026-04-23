@@ -1,9 +1,8 @@
-const SUPABASE_URL = "https://sjzeuxhxbfmgiuikzzok.supabase.co/rest/v1/";
-const SUPABASE_KEY = "sb_publishable_YyfWphLgZCtjpxIaaoKABQ_UC6HRsCj";
+const SUPABASE_URL = "https://sjzeuxhxbfmgjuikzzok.supabase.co/rest/v1/";
+const SUPABASE_KEY = "COLE_SUA_KEY_AQUI";
 
 let usuarioLogado = {};
 
-// ================= HEADERS =================
 const HEADERS = {
   apikey: SUPABASE_KEY,
   Authorization: `Bearer ${SUPABASE_KEY}`,
@@ -39,7 +38,7 @@ async function login() {
   const password = document.getElementById("password").value;
 
   const res = await fetch(
-     `${SUPABASE_URL}usuarios?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
+    `${SUPABASE_URL}usuarios?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
     { headers: HEADERS }
   );
 
@@ -96,6 +95,7 @@ function aplicarTema(empresa) {
 
 // ================= CHAT CONFIG =================
 function ajustarChatCia() {
+
   const chatBox = document.querySelector("#sidebarForm .chat-box");
   if (!chatBox) return;
 
@@ -116,7 +116,7 @@ async function enviarRequisicao() {
 
   const payload = {
     data: agora.toISOString().split("T")[0],
-    hora: agora.toTimeString().split(" ")[0],
+    hora: agora.toISOString().substring(11,19),
     voo: voo.value.toUpperCase(),
     destino: destino.value.toUpperCase(),
     decolagem: decolagem.value,
@@ -216,15 +216,38 @@ async function enviarMensagem() {
 
   await fetch(`${SUPABASE_URL}chat`, {
     method: "POST",
-    headers: {
-      ...HEADERS,
-      Prefer: "return=representation"
-    },
+    headers: HEADERS,
     body: JSON.stringify({
       data: agora.toISOString().split("T")[0],
-      hora: agora.toISOString().substring(11,19), // 🔥 CORREÇÃO
+      hora: agora.toISOString().substring(11,19),
       empresa: usuarioLogado.empresa,
       remetente: usuarioLogado.nome,
+      mensagem
+    })
+  });
+
+  input.value = "";
+  carregarMensagens();
+}
+
+// ================= CHAT GRU =================
+async function enviarMensagemGRU(empresa) {
+
+  const input = document.getElementById("input" + empresa);
+  const mensagem = input.value.trim();
+
+  if (!mensagem) return;
+
+  const agora = new Date();
+
+  await fetch(`${SUPABASE_URL}chat`, {
+    method: "POST",
+    headers: HEADERS,
+    body: JSON.stringify({
+      data: agora.toISOString().split("T")[0],
+      hora: agora.toISOString().substring(11,19),
+      empresa: empresa,
+      remetente: "GRU",
       mensagem
     })
   });
@@ -242,26 +265,61 @@ async function carregarMensagens() {
 
   const dados = await res.json();
 
-  const chat = document.getElementById("chatMessagesCia");
-  if (!chat) return;
+  if (usuarioLogado.empresa !== "GRU") {
 
-  chat.innerHTML = "";
+    const chat = document.getElementById("chatMessagesCia");
+    if (!chat) return;
 
-  dados.forEach(linha => {
+    chat.innerHTML = "";
 
-    if (linha.empresa !== usuarioLogado.empresa) return;
+    dados.forEach(linha => {
 
-    const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
+      if (linha.empresa !== usuarioLogado.empresa) return;
 
-    chat.innerHTML += `
-      <div class="msg ${classe}">
-        <strong>${linha.remetente}</strong>
-        <p>${linha.mensagem}</p>
-      </div>
-    `;
-  });
+      const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
 
-  chat.scrollTop = chat.scrollHeight;
+      chat.innerHTML += `
+        <div class="msg ${classe}">
+          <strong>${linha.remetente}</strong>
+          <p>${linha.mensagem}</p>
+        </div>
+      `;
+    });
+
+    chat.scrollTop = chat.scrollHeight;
+
+  } else {
+
+    const mapas = {
+      LATAM: "chatLatam",
+      GOL: "chatGol",
+      AZUL: "chatAzul"
+    };
+
+    Object.keys(mapas).forEach(emp => {
+
+      const chat = document.getElementById(mapas[emp]);
+      if (!chat) return;
+
+      chat.innerHTML = "";
+
+      dados.forEach(linha => {
+
+        if (linha.empresa !== emp) return;
+
+        const classe = (linha.remetente === "GRU") ? "me" : "other";
+
+        chat.innerHTML += `
+          <div class="msg ${classe}">
+            <strong>${linha.remetente}</strong>
+            <p>${linha.mensagem}</p>
+          </div>
+        `;
+      });
+
+      chat.scrollTop = chat.scrollHeight;
+    });
+  }
 }
 
 // ================= LIMPAR =================
