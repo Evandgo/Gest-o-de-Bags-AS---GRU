@@ -3,57 +3,166 @@
 <head>
   <meta charset="UTF-8">
   <title>Gestão Bags AS</title>
-  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
 <!-- ================= LOGIN ================= -->
 <div id="loginContainer" class="login-bg">
-
   <div class="login-wrapper">
-
     <div class="login-card">
+      <p class="title">Informe suas credenciais</p>
 
-      <div class="login-icon">
-        <img src="circulo.png" alt="icone">
-      </div>
+      <input type="text" id="username" placeholder="Login">
+      <input type="password" id="password" placeholder="Senha">
 
-      <h2>Acesso ao Sistema</h2>
-      <p class="subtitle">Informe suas credenciais para continuar</p>
+      <button onclick="login()">Login</button>
 
-      <div class="input-group">
-        <img src="avatar.png">
-        <input type="text" id="username" placeholder="Login">
-      </div>
-
-      <div class="input-group">
-        <img src="cadeado.png">
-        <input type="password" id="password" placeholder="Senha">
-      </div>
-
-      <button onclick="login()">Entrar →</button>
-
-      <div class="divider">ou</div>
-
-      <p class="support">
-        Precisa de ajuda? <span>Fale com o suporte</span>
-      </p>
-
-      <div class="footer-login">
-        <p>Desenvolvido por Diego Pereira da Silva</p>
-        <p>Analista Sênior de Projetos</p>
-      </div>
+      <p class="desenvolvedor">Developed by: Diego Pereira da Silva</p>
+      <p class="analista">Analista Sênior Projetos Aeroportos</p>
 
       <p id="error"></p>
+    </div>
+  </div>
+</div>
 
+<!-- ================= SISTEMA ================= -->
+<div id="appContainer" style="display:none;">
+
+<header class="topbar" id="topbar">
+  <div class="logo-header">
+    <img id="logoEmpresa" src="latam.png">
+  </div>
+  
+  <div class="user-info">
+    <p class="bem-vindo"></p>
+    <span id="data-hora"></span>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ================= SIDEBAR (CIAS) ================= -->
+  <div class="sidebar" id="sidebarForm">
+
+    <h3>Nova requisição AS</h3>
+
+    <label>Número do voo</label>
+    <input id="voo" maxlength="6" placeholder="Ex: LA3211">
+
+    <label>Destino</label>
+    <input id="destino" maxlength="3" placeholder="Ex: JPA">
+
+    <label>Horário de decolagem</label>
+    <input id="decolagem" maxlength="5" placeholder="Ex: 14:05">
+
+    <label>Nome do passageiro</label>
+    <input id="pax" placeholder="Ex: SILVA/DIEGO">
+
+    <label>Cód. Reserva</label>
+    <input id="reserva" maxlength="6" placeholder="Ex: KIMDGO">
+
+    <label>Bagagem</label>
+    <input id="bagagem" maxlength="8" placeholder="Ex: LA561732">
+
+    <label>Horário da leitura</label>
+    <input id="horario_leitura" maxlength="5" placeholder="Ex: 12:37">
+
+    <button onclick="enviarRequisicao()">Enviar</button>
+
+    <div style="height:20px;"></div>
+
+    <!-- ================= CHAT CIA (LATAM / GOL / AZUL) ================= -->
+    <div class="chat-box latam">
+      <div class="chat-header">Chat LATAM</div>
+
+      <div class="chat-messages" id="chatMessagesCia"></div>
+
+      <div class="chat-input">
+        <input type="text" id="inputMensagemCia" placeholder="Digite sua mensagem...">
+        <button onclick="enviarMensagem()">➤</button>
+      </div>
     </div>
 
   </div>
 
+  <!-- ================= CHAT GRU (ADMIN) ================= -->
+  <div class="chat-container" id="chatContainer" style="display:none;">
+
+    <!-- LATAM -->
+    <div class="chat-box latam">
+      <div class="chat-header">Chat LATAM</div>
+      <div class="chat-messages" id="chatLatam"></div>
+      <div class="chat-input">
+        <input type="text" id="inputLATAM" placeholder="Mensagem LATAM...">
+        <button onclick="enviarMensagemGRU('LATAM')">➤</button>
+      </div>
+    </div>
+
+    <!-- GOL -->
+    <div class="chat-box gol">
+      <div class="chat-header">Chat GOL</div>
+      <div class="chat-messages" id="chatGol"></div>
+      <div class="chat-input">
+        <input type="text" id="inputGOL" placeholder="Mensagem GOL...">
+        <button onclick="enviarMensagemGRU('GOL')">➤</button>
+      </div>
+    </div>
+
+    <!-- AZUL -->
+    <div class="chat-box azul">
+      <div class="chat-header">Chat AZUL</div>
+      <div class="chat-messages" id="chatAzul"></div>
+      <div class="chat-input">
+        <input type="text" id="inputAZUL" placeholder="Mensagem AZUL...">
+        <button onclick="enviarMensagemGRU('AZUL')">➤</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= CONTEÚDO ================= -->
+  <div class="content">
+
+    <div class="header-tabela">
+      <h2>Status de requisição</h2>
+
+      <button onclick="carregarTabela()" class="btn-refresh">
+        Atualizar
+      </button>
+
+      <label>Data:</label>
+      <input type="date" id="filtroData">
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Hora</th>
+          <th>Requisitado por</th>
+          <th>Cia</th>
+          <th>Voo</th>
+          <th>Destino</th>
+          <th>Decolagem</th>
+          <th>Bagagem</th>
+          <th>Leitura</th>
+          <th>Passageiro</th>
+          <th>Reserva</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="tabela-requisicoes"></tbody>
+    </table>
+
+  </div>
+
+</div>
 </div>
 
-<script src="script.js?v=1"></script>
+<script src="script.js"></script>
 
 </body>
 </html>
