@@ -328,3 +328,31 @@ function atualizarDataHora() {
 
 setInterval(atualizarDataHora, 1000);
 setInterval(carregarTabela, 5000);
+
+
+// ================= ATUALIZAR STATUS =================
+async function atualizarStatus(id, novoStatus) {
+
+  try {
+
+    const res = await fetch(`${SUPABASE_URL}requisicoes?id=eq.${id}`, {
+      method: "PATCH",
+      headers: {
+        ...HEADERS,
+        Prefer: "return=representation"
+      },
+      body: JSON.stringify({
+        status: novoStatus
+      })
+    });
+
+    const data = await res.json();
+
+    console.log("Status atualizado:", data);
+
+    carregarTabela();
+
+  } catch (erro) {
+    console.error("Erro ao atualizar status:", erro);
+  }
+}
