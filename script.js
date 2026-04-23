@@ -1,5 +1,5 @@
-const SUPABASE_URL = "https://sjzeuxhxbfmgjuikzzok.supabase.co/rest/v1/";
-const SUPABASE_KEY = "COLE_SUA_KEY_AQUI";
+const SUPABASE_URL = "https://sjzeuxhxbfmgiuikzzok.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_YyfWphLgZCtjpxIaaoKABQ_UC6HRsCj";
 
 let usuarioLogado = {};
 
