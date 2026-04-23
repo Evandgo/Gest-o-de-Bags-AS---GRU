@@ -11,7 +11,42 @@
 <!-- ================= LOGIN ================= -->
 <div id="loginContainer" class="login-bg">
   <div class="login-wrapper">
-    <div class="login-card">
+
+    <div class="login-card-glass">
+
+      <div class="login-icon">🔒</div>
+
+      <h2>Acesso ao Sistema</h2>
+      <p class="subtitle">Informe suas credenciais para continuar</p>
+
+      <div class="input-group">
+        <span class="icon">👤</span>
+        <input type="text" id="username" placeholder="Login">
+      </div>
+
+      <div class="input-group">
+        <span class="icon">🔒</span>
+        <input type="password" id="password" placeholder="Senha">
+      </div>
+
+      <button class="btn-login" onclick="login()">
+        Entrar →
+      </button>
+
+      <div class="divider">
+        <span>ou</span>
+      </div>
+
+      <p class="suporte">
+        Precisa de ajuda? <span>Fale com o suporte</span>
+      </p>
+
+      <p id="error"></p>
+
+    </div>
+
+  </div>
+</div>
       <p class="title">Informe suas credenciais</p>
 
       <input type="text" id="username" placeholder="Login">
