@@ -43,7 +43,7 @@
 
 <div class="main">
 
-  <!-- SIDEBAR -->
+  <!-- ================= SIDEBAR (CIAS) ================= -->
   <div class="sidebar" id="sidebarForm">
 
     <h3>Nova requisição AS</h3>
@@ -73,7 +73,7 @@
 
     <div style="height:20px;"></div>
 
-    <!-- CHAT CIA -->
+    <!-- ================= CHAT CIA (LATAM / GOL / AZUL) ================= -->
     <div class="chat-box latam">
       <div class="chat-header">Chat LATAM</div>
 
@@ -87,68 +87,68 @@
 
   </div>
 
-  <!-- CHAT GRU -->
+  <!-- ================= CHAT GRU (ADMIN) ================= -->
   <div class="chat-container" id="chatContainer" style="display:none;">
 
+    <!-- LATAM -->
     <div class="chat-box latam">
       <div class="chat-header">Chat LATAM</div>
       <div class="chat-messages" id="chatLatam"></div>
       <div class="chat-input">
-        <input type="text" id="inputLATAM">
+        <input type="text" id="inputLATAM" placeholder="Mensagem LATAM...">
         <button onclick="enviarMensagemGRU('LATAM')">➤</button>
       </div>
     </div>
 
+    <!-- GOL -->
     <div class="chat-box gol">
       <div class="chat-header">Chat GOL</div>
       <div class="chat-messages" id="chatGol"></div>
       <div class="chat-input">
-        <input type="text" id="inputGOL">
+        <input type="text" id="inputGOL" placeholder="Mensagem GOL...">
         <button onclick="enviarMensagemGRU('GOL')">➤</button>
       </div>
     </div>
 
+    <!-- AZUL -->
     <div class="chat-box azul">
       <div class="chat-header">Chat AZUL</div>
       <div class="chat-messages" id="chatAzul"></div>
       <div class="chat-input">
-        <input type="text" id="inputAZUL">
+        <input type="text" id="inputAZUL" placeholder="Mensagem AZUL...">
         <button onclick="enviarMensagemGRU('AZUL')">➤</button>
       </div>
     </div>
 
   </div>
 
-  <!-- CONTEÚDO -->
+  <!-- ================= CONTEÚDO ================= -->
   <div class="content">
 
-    <!-- 🔥 HEADER COM FILTRO VISÍVEL -->
-    <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
-
-      <h2 style="margin:0;">Status de requisição</h2>
+    <div class="header-tabela">
+      <h2>Status de requisição</h2>
 
       <button onclick="carregarTabela()" class="btn-refresh">
         Atualizar
       </button>
 
-      <label><strong>Data:</strong></label>
+      <label>Data:</label>
       <input type="date" id="filtroData">
-
     </div>
 
     <table>
       <thead>
         <tr>
           <th>Data</th>
-          <th>Hora da Requisição</th>
-          <th>Requisitado por:</th>
+          <th>Hora</th>
+          <th>Requisitado por</th>
           <th>Cia</th>
           <th>Voo</th>
           <th>Destino</th>
           <th>Decolagem</th>
           <th>Bagagem</th>
           <th>Leitura</th>
-          <th>Nome do Passageiro</th>
+          <th>Passageiro</th>
           <th>Reserva</th>
           <th>Status</th>
         </tr>
