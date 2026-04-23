@@ -9,10 +9,9 @@ const HEADERS = {
   "Content-Type": "application/json"
 };
 
-// ================= DATA HOJE (CORRIGIDO - BR) =================
+// ================= DATA HOJE (BR) =================
 function getHoje() {
-  const hoje = new Date();
-  return hoje.toLocaleDateString("sv-SE"); // formato YYYY-MM-DD correto
+  return new Date().toLocaleDateString("sv-SE"); // YYYY-MM-DD
 }
 
 // ================= FORMATADORES =================
@@ -36,7 +35,7 @@ async function login() {
   const password = document.getElementById("password").value;
 
   const res = await fetch(
-    `${SUPABASE_URL}usuarios?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
+    `${SUPABASE_URL}usuarios?username=ilike.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
     { headers: HEADERS }
   );
 
@@ -63,7 +62,7 @@ async function login() {
   aplicarTema(user.company);
   ajustarChatCia();
 
-  // 🔥 DEFINE DATA AQUI (GARANTIDO)
+  // define filtro com hoje
   const inputFiltro = document.getElementById("filtroData");
   if (inputFiltro) inputFiltro.value = getHoje();
 
@@ -98,7 +97,6 @@ function aplicarTema(empresa) {
 
 // ================= CHAT CONFIG =================
 function ajustarChatCia() {
-
   const chatBox = document.querySelector("#sidebarForm .chat-box");
   if (!chatBox) return;
 
@@ -146,10 +144,9 @@ async function enviarRequisicao() {
 // ================= LISTAR REQUISIÇÕES =================
 async function carregarTabela() {
 
-  const inputFiltro = document.getElementById("filtroData");
-  const filtroData = inputFiltro && inputFiltro.value ? inputFiltro.value : getHoje();
+  const filtroData = document.getElementById("filtroData")?.value || getHoje();
 
-  let url = `${SUPABASE_URL}requisicoes?select=*&data=eq.${filtroData}`;
+  let url = `${SUPABASE_URL}requisicoes?select=*&data=eq.${encodeURIComponent(filtroData)}&order=hora.desc`;
 
   const res = await fetch(url, { headers: HEADERS });
   const dados = await res.json();
@@ -158,6 +155,9 @@ async function carregarTabela() {
   tabela.innerHTML = "";
 
   dados.forEach((linha) => {
+
+    // 🔥 garantia extra (resolve bug que você teve)
+    if (linha.data !== filtroData) return;
 
     if (usuarioLogado.empresa !== "GRU" && linha.empresa !== usuarioLogado.empresa) return;
 
@@ -197,12 +197,24 @@ async function carregarTabela() {
   });
 }
 
+// ================= ATUALIZAR STATUS =================
+async function atualizarStatus(id, novoStatus) {
+
+  await fetch(`${SUPABASE_URL}requisicoes?id=eq.${id}`, {
+    method: "PATCH",
+    headers: HEADERS,
+    body: JSON.stringify({ status: novoStatus })
+  });
+
+  carregarTabela();
+}
+
 // ================= CHAT =================
 async function carregarMensagens() {
 
   const filtroData = document.getElementById("filtroData")?.value || getHoje();
 
-  let url = `${SUPABASE_URL}chat?select=*&data=eq.${filtroData}`;
+  let url = `${SUPABASE_URL}chat?select=*&data=eq.${encodeURIComponent(filtroData)}`;
 
   const res = await fetch(url, { headers: HEADERS });
   const dados = await res.json();
@@ -214,6 +226,7 @@ async function carregarMensagens() {
 
   dados.forEach(linha => {
 
+    if (linha.data !== filtroData) return;
     if (linha.empresa !== usuarioLogado.empresa) return;
 
     const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
@@ -227,6 +240,31 @@ async function carregarMensagens() {
   });
 
   chat.scrollTop = chat.scrollHeight;
+}
+
+// ================= ENVIAR CHAT =================
+async function enviarMensagem() {
+
+  const input = document.getElementById("inputMensagemCia");
+  const mensagem = input.value.trim();
+  if (!mensagem) return;
+
+  const agora = new Date();
+
+  await fetch(`${SUPABASE_URL}chat`, {
+    method: "POST",
+    headers: HEADERS,
+    body: JSON.stringify({
+      data: getHoje(),
+      hora: agora.toLocaleTimeString("en-GB"),
+      empresa: usuarioLogado.empresa,
+      remetente: usuarioLogado.nome,
+      mensagem
+    })
+  });
+
+  input.value = "";
+  carregarMensagens();
 }
 
 // ================= LIMPAR =================
