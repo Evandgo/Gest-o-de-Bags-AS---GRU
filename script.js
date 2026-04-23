@@ -212,12 +212,17 @@ async function enviarMensagem() {
 
   if (!mensagem) return;
 
+  const agora = new Date();
+
   await fetch(`${SUPABASE_URL}chat`, {
     method: "POST",
-    headers: HEADERS,
+    headers: {
+      ...HEADERS,
+      Prefer: "return=representation"
+    },
     body: JSON.stringify({
-      data: new Date().toISOString().split("T")[0],
-      hora: new Date().toTimeString().split(" ")[0],
+      data: agora.toISOString().split("T")[0],
+      hora: agora.toISOString().substring(11,19), // 🔥 CORREÇÃO
       empresa: usuarioLogado.empresa,
       remetente: usuarioLogado.nome,
       mensagem
