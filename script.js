@@ -1,4 +1,4 @@
-const SUPABASE_URL = "https://sjzeuxhxbfmgiuikzzok.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://sjzeuxhxbfmgjuikzzok.supabase.co/rest/v1/";
 const SUPABASE_KEY = "sb_publishable_YyfWphLgZCtjpxIaaoKABQ_UC6HRsCj";
 
 let usuarioLogado = {};
@@ -9,16 +9,18 @@ const HEADERS = {
   "Content-Type": "application/json"
 };
 
-// ================= DATA HOJE (BR) =================
-function getHoje() {
+// ================= TIMEZONE BRASIL =================
+function getDataHoraBrasil() {
   const agora = new Date();
 
-  // força timezone Brasil
   const brasil = new Date(
     agora.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
   );
 
-  return brasil.toISOString().split("T")[0];
+  return {
+    data: brasil.toISOString().split("T")[0],
+    hora: brasil.toTimeString().split(" ")[0]
+  };
 }
 
 // ================= FORMATADORES =================
@@ -69,9 +71,10 @@ async function login() {
   aplicarTema(user.company);
   ajustarChatCia();
 
-  // define filtro com hoje
+  // define data atual no filtro
+  const hoje = getDataHoraBrasil().data;
   const inputFiltro = document.getElementById("filtroData");
-  if (inputFiltro) inputFiltro.value = getHoje();
+  if (inputFiltro) inputFiltro.value = hoje;
 
   carregarTabela();
   carregarMensagens();
@@ -104,6 +107,7 @@ function aplicarTema(empresa) {
 
 // ================= CHAT CONFIG =================
 function ajustarChatCia() {
+
   const chatBox = document.querySelector("#sidebarForm .chat-box");
   if (!chatBox) return;
 
@@ -120,11 +124,11 @@ function ajustarChatCia() {
 // ================= ENVIAR REQUISIÇÃO =================
 async function enviarRequisicao() {
 
-  const agora = new Date();
+  const { data, hora } = getDataHoraBrasil();
 
   const payload = {
-    data: getHoje(),
-    hora: agora.toLocaleTimeString("en-GB"),
+    data,
+    hora,
     voo: voo.value.toUpperCase(),
     destino: destino.value.toUpperCase(),
     decolagem: decolagem.value,
@@ -151,7 +155,7 @@ async function enviarRequisicao() {
 // ================= LISTAR REQUISIÇÕES =================
 async function carregarTabela() {
 
-  const filtroData = document.getElementById("filtroData")?.value || getHoje();
+  const filtroData = document.getElementById("filtroData")?.value;
 
   const res = await fetch(`${SUPABASE_URL}requisicoes?select=*`, {
     headers: HEADERS
@@ -164,8 +168,8 @@ async function carregarTabela() {
 
   dados.forEach((linha) => {
 
-    // 🔥 FILTRO REAL (AQUI ESTÁ A SOLUÇÃO)
-    if (linha.data !== filtroData) return;
+    // 🔥 filtro definitivo
+    if (filtroData && linha.data !== filtroData) return;
 
     if (usuarioLogado.empresa !== "GRU" && linha.empresa !== usuarioLogado.empresa) return;
 
@@ -205,22 +209,10 @@ async function carregarTabela() {
   });
 }
 
-// ================= ATUALIZAR STATUS =================
-async function atualizarStatus(id, novoStatus) {
-
-  await fetch(`${SUPABASE_URL}requisicoes?id=eq.${id}`, {
-    method: "PATCH",
-    headers: HEADERS,
-    body: JSON.stringify({ status: novoStatus })
-  });
-
-  carregarTabela();
-}
-
 // ================= CHAT =================
 async function carregarMensagens() {
 
-  const filtroData = document.getElementById("filtroData")?.value || getHoje();
+  const filtroData = document.getElementById("filtroData")?.value;
 
   const res = await fetch(`${SUPABASE_URL}chat?select=*`, {
     headers: HEADERS
@@ -235,7 +227,7 @@ async function carregarMensagens() {
 
   dados.forEach(linha => {
 
-    if (linha.data !== filtroData) return;
+    if (filtroData && linha.data !== filtroData) return;
     if (linha.empresa !== usuarioLogado.empresa) return;
 
     const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
@@ -258,14 +250,14 @@ async function enviarMensagem() {
   const mensagem = input.value.trim();
   if (!mensagem) return;
 
-  const agora = new Date();
+  const { data, hora } = getDataHoraBrasil();
 
   await fetch(`${SUPABASE_URL}chat`, {
     method: "POST",
     headers: HEADERS,
     body: JSON.stringify({
-      data: getHoje(),
-      hora: agora.toLocaleTimeString("en-GB"),
+      data,
+      hora,
       empresa: usuarioLogado.empresa,
       remetente: usuarioLogado.nome,
       mensagem
