@@ -228,7 +228,7 @@ async function carregarMensagens() {
   dados.forEach(linha => {
 
     if (filtroData && linha.data !== filtroData) return;
-    if (linha.empresa !== usuarioLogado.empresa) return;
+    if (usuarioLogado.empresa !== "GRU" && linha.empresa !== usuarioLogado.empresa) return;
 
     const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
 
