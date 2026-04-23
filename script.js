@@ -356,3 +356,33 @@ async function atualizarStatus(id, novoStatus) {
     console.error("Erro ao atualizar status:", erro);
   }
 }
+
+
+// ================= GRU CHAT =================
+async function enviarMensagemGRU(empresa) {
+
+  const input = document.getElementById("input" + empresa);
+  const mensagem = input.value.trim();
+
+  if (!mensagem) return;
+
+  const { data, hora } = getDataHoraBrasil();
+
+  await fetch(`${SUPABASE_URL}chat`, {
+    method: "POST",
+    headers: HEADERS,
+    body: JSON.stringify({
+      data,
+      hora,
+      empresa: empresa,      // 🔥 aqui é o segredo
+      remetente: "GRU",
+      mensagem
+    })
+  });
+
+  input.value = "";
+
+  setTimeout(() => {
+    carregarMensagens();
+  }, 300);
+}
