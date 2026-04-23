@@ -220,27 +220,67 @@ async function carregarMensagens() {
 
   const dados = await res.json();
 
-  const chat = document.getElementById("chatMessagesCia");
-  if (!chat) return;
+  // ================= USUÁRIOS NORMAIS =================
+  if (usuarioLogado.empresa !== "GRU") {
 
-  chat.innerHTML = "";
+    const chat = document.getElementById("chatMessagesCia");
+    if (!chat) return;
 
-  dados.forEach(linha => {
+    chat.innerHTML = "";
 
-    if (filtroData && linha.data !== filtroData) return;
-    if (usuarioLogado.empresa !== "GRU" && linha.empresa !== usuarioLogado.empresa) return;
+    dados.forEach(linha => {
 
-    const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
+      if (filtroData && linha.data !== filtroData) return;
+      if (linha.empresa !== usuarioLogado.empresa) return;
 
-    chat.innerHTML += `
-      <div class="msg ${classe}">
-        <strong>${linha.remetente}</strong>
-        <p>${linha.mensagem}</p>
-      </div>
-    `;
-  });
+      const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
 
-  chat.scrollTop = chat.scrollHeight;
+      chat.innerHTML += `
+        <div class="msg ${classe}">
+          <strong>${linha.remetente}</strong>
+          <p>${linha.mensagem}</p>
+        </div>
+      `;
+    });
+
+    chat.scrollTop = chat.scrollHeight;
+
+  } 
+
+  // ================= GRU (ADMIN) =================
+  else {
+
+    const mapas = {
+      LATAM: "chatLatam",
+      GOL: "chatGol",
+      AZUL: "chatAzul"
+    };
+
+    Object.keys(mapas).forEach(emp => {
+
+      const chat = document.getElementById(mapas[emp]);
+      if (!chat) return;
+
+      chat.innerHTML = "";
+
+      dados.forEach(linha => {
+
+        if (filtroData && linha.data !== filtroData) return;
+        if (linha.empresa !== emp) return;
+
+        const classe = (linha.remetente === "GRU") ? "me" : "other";
+
+        chat.innerHTML += `
+          <div class="msg ${classe}">
+            <strong>${linha.remetente}</strong>
+            <p>${linha.mensagem}</p>
+          </div>
+        `;
+      });
+
+      chat.scrollTop = chat.scrollHeight;
+    });
+  }
 }
 
 // ================= ENVIAR CHAT =================
