@@ -1,132 +1,161 @@
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
 }
 
-/* LOGIN BACKGROUND */
+/* BACKGROUND */
 .login-bg {
   height: 100vh;
+  width: 100%;
   background: url("GRU.png") center/cover no-repeat;
+  display: flex;
 }
 
-/* LOGIN WRAPPER */
-.login-wrapper {
+/* LADO ESQUERDO */
+.login-left {
+  flex: 1;
+  color: white;
+  padding: 80px;
+}
+
+.logo-latam {
+  width: 180px;
+  margin-bottom: 30px;
+}
+
+.login-left h1 {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.login-left p {
+  opacity: 0.7;
+}
+
+.logos-bottom {
   position: absolute;
-  right: 10%;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 40px;
+}
+
+.logos-bottom img {
+  height: 40px;
+  margin-right: 20px;
+}
+
+/* LOGIN CARD */
+.login-wrapper {
+  width: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* CARD */
-.login-card-glass {
-  width: 380px;
-  padding: 35px;
+.login-card {
+  width: 420px;
+  padding: 40px;
   border-radius: 20px;
 
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(20px);
 
   border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
 
   color: white;
   text-align: center;
 }
 
-/* ICON */
+/* ÍCONE */
 .login-icon {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   margin: auto;
   border-radius: 50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   background: linear-gradient(135deg,#4facfe,#00f2fe);
 }
 
+.login-icon img {
+  width: 30px;
+}
+
+/* TEXTO */
+.login-card h2 {
+  margin-top: 15px;
+}
+
+.subtitle {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 25px;
+}
+
 /* INPUT */
 .input-group {
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
   background: rgba(255,255,255,0.1);
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:15px;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.input-group img {
+  width: 18px;
+  margin-right: 10px;
 }
 
 .input-group input {
-  background:none;
-  border:none;
-  color:white;
-  width:100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+  width: 100%;
 }
 
-/* BUTTON */
-.btn-login {
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:none;
+/* BOTÃO */
+.login-card button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+
   background: linear-gradient(90deg,#6a11cb,#ff416c);
-  color:white;
-  cursor:pointer;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 /* DIVIDER */
 .divider {
-  margin:20px 0;
+  margin: 20px 0;
+  opacity: 0.6;
 }
 
-/* APP */
-.topbar {
-  background:#1b005d;
-  color:white;
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
+/* SUPORTE */
+.support {
+  font-size: 13px;
+  opacity: 0.7;
 }
 
-.main {
-  display:flex;
+.support span {
+  color: #4facfe;
+  cursor: pointer;
 }
 
-.sidebar {
-  width:300px;
-  background:#eee;
-  padding:20px;
+/* RODAPÉ */
+.footer-login {
+  margin-top: 25px;
+  font-size: 12px;
+  opacity: 0.7;
 }
 
-.content {
-  flex:1;
-  padding:20px;
-}
-
-/* CHAT */
-.chat-box {
-  background:white;
-  margin-top:20px;
-  border-radius:10px;
-}
-
-.chat-header {
-  padding:10px;
-  color:white;
-}
-
-.latam .chat-header {background:#1b005d;}
-.gol .chat-header {background:#ff4f03;}
-.azul .chat-header {background:#2890c4;}
-
-.chat-input {
-  display:flex;
-}
-
-.chat-input input {
-  flex:1;
-}
-
-.chat-input button {
-  width:50px;
+/* ERRO */
+#error {
+  color: #ff4f4f;
 }

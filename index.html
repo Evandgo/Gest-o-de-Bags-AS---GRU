@@ -3,143 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <title>Gestão Bags AS</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=1">
 </head>
 
 <body>
 
 <!-- ================= LOGIN ================= -->
 <div id="loginContainer" class="login-bg">
+
+  <!-- LADO ESQUERDO (TEXTO) -->
+  <div class="login-left">
+    <img src="latam.png" class="logo-latam">
+
+    <h1>Conectando pessoas,<br>entregando excelência.</h1>
+
+    <p>
+      Sistema de gestão de bagagens e<br>
+      operações aeroportuárias.
+    </p>
+
+    <div class="logos-bottom">
+      <img src="GRU.png">
+      <img src="wfs.png">
+    </div>
+  </div>
+
+  <!-- CARD LOGIN -->
   <div class="login-wrapper">
 
-    <div class="login-card-glass">
+    <div class="login-card">
 
-      <div class="login-icon">🔒</div>
+      <div class="login-icon">
+        <img src="circulo.png">
+      </div>
 
       <h2>Acesso ao Sistema</h2>
       <p class="subtitle">Informe suas credenciais para continuar</p>
 
       <div class="input-group">
-        <span>👤</span>
+        <img src="avatar.png">
         <input type="text" id="username" placeholder="Login">
       </div>
 
       <div class="input-group">
-        <span>🔒</span>
+        <img src="cadeado.png">
         <input type="password" id="password" placeholder="Senha">
       </div>
 
-      <button class="btn-login" onclick="login()">Entrar →</button>
+      <button onclick="login()">Entrar →</button>
 
-      <div class="divider"><span>ou</span></div>
+      <div class="divider">ou</div>
 
-      <p class="suporte">Precisa de ajuda? <span>Fale com o suporte</span></p>
+      <p class="support">
+        Precisa de ajuda? <span>Fale com o suporte</span>
+      </p>
+
+      <div class="footer-login">
+        <p>Desenvolvido por Diego Pereira da Silva</p>
+        <p>Analista Sênior de Projetos</p>
+      </div>
 
       <p id="error"></p>
 
     </div>
 
   </div>
-</div>
 
-<!-- ================= SISTEMA ================= -->
-<div id="appContainer" style="display:none;">
-
-<header class="topbar" id="topbar">
-  <div class="logo-header">
-    <img id="logoEmpresa" src="latam.png">
-  </div>
-  
-  <div class="user-info">
-    <p class="bem-vindo"></p>
-    <span id="data-hora"></span>
-  </div>
-</header>
-
-<div class="main">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebarForm">
-
-    <h3>Nova requisição AS</h3>
-
-    <input id="voo" placeholder="Voo">
-    <input id="destino" placeholder="Destino">
-    <input id="decolagem" placeholder="Decolagem">
-    <input id="pax" placeholder="Passageiro">
-    <input id="reserva" placeholder="Reserva">
-    <input id="bagagem" placeholder="Bagagem">
-    <input id="horario_leitura" placeholder="Leitura">
-
-    <button onclick="enviarRequisicao()">Enviar</button>
-
-    <!-- CHAT CIA -->
-    <div class="chat-box latam">
-      <div class="chat-header">Chat LATAM</div>
-      <div class="chat-messages" id="chatMessagesCia"></div>
-      <div class="chat-input">
-        <input type="text" id="inputMensagemCia" placeholder="Mensagem...">
-        <button onclick="enviarMensagem()">➤</button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- CHAT GRU -->
-  <div class="chat-container" id="chatContainer" style="display:none;">
-
-    <div class="chat-box latam">
-      <div class="chat-header">LATAM</div>
-      <div id="chatLatam"></div>
-      <div class="chat-input">
-        <input id="inputLATAM">
-        <button onclick="enviarMensagemGRU('LATAM')">➤</button>
-      </div>
-    </div>
-
-    <div class="chat-box gol">
-      <div class="chat-header">GOL</div>
-      <div id="chatGol"></div>
-      <div class="chat-input">
-        <input id="inputGOL">
-        <button onclick="enviarMensagemGRU('GOL')">➤</button>
-      </div>
-    </div>
-
-    <div class="chat-box azul">
-      <div class="chat-header">AZUL</div>
-      <div id="chatAzul"></div>
-      <div class="chat-input">
-        <input id="inputAZUL">
-        <button onclick="enviarMensagemGRU('AZUL')">➤</button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- CONTEÚDO -->
-  <div class="content">
-    <h2>Status de requisição</h2>
-
-    <input type="date" id="filtroData">
-
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Hora</th>
-          <th>Colaborador</th>
-          <th>Cia</th>
-          <th>Voo</th>
-          <th>Destino</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="tabela-requisicoes"></tbody>
-    </table>
-  </div>
-
-</div>
 </div>
 
 <script src="script.js?v=1"></script>
