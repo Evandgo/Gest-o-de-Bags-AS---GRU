@@ -26,7 +26,9 @@ function getDataHoraBrasil() {
 // ================= FORMATADORES =================
 function formatarData(valor) {
   if (!valor) return "";
-  return new Date(valor).toLocaleDateString("pt-BR");
+
+  const [ano, mes, dia] = valor.split("-");
+  return `${dia}/${mes}/${ano}`;
 }
 
 function formatarHora(valor) {
@@ -305,7 +307,10 @@ async function enviarMensagem() {
   });
 
   input.value = "";
-  carregarMensagens();
+
+  setTimeout(() => {
+    carregarMensagens();
+  }, 300);
 }
 
 // ================= LIMPAR =================
