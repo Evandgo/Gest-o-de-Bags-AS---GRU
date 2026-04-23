@@ -20,45 +20,25 @@
       <p class="subtitle">Informe suas credenciais para continuar</p>
 
       <div class="input-group">
-        <span class="icon">👤</span>
+        <span>👤</span>
         <input type="text" id="username" placeholder="Login">
       </div>
 
       <div class="input-group">
-        <span class="icon">🔒</span>
+        <span>🔒</span>
         <input type="password" id="password" placeholder="Senha">
       </div>
 
-      <button class="btn-login" onclick="login()">
-        Entrar →
-      </button>
+      <button class="btn-login" onclick="login()">Entrar →</button>
 
-      <div class="divider">
-        <span>ou</span>
-      </div>
+      <div class="divider"><span>ou</span></div>
 
-      <p class="suporte">
-        Precisa de ajuda? <span>Fale com o suporte</span>
-      </p>
+      <p class="suporte">Precisa de ajuda? <span>Fale com o suporte</span></p>
 
       <p id="error"></p>
 
     </div>
 
-  </div>
-</div>
-      <p class="title">Informe suas credenciais</p>
-
-      <input type="text" id="username" placeholder="Login">
-      <input type="password" id="password" placeholder="Senha">
-
-      <button onclick="login()">Login</button>
-
-      <p class="desenvolvedor">Developed by: Diego Pereira da Silva</p>
-      <p class="analista">Analista Sênior Projetos Aeroportos</p>
-
-      <p id="error"></p>
-    </div>
   </div>
 </div>
 
@@ -78,126 +58,91 @@
 
 <div class="main">
 
-  <!-- ================= SIDEBAR (CIAS) ================= -->
+  <!-- SIDEBAR -->
   <div class="sidebar" id="sidebarForm">
 
     <h3>Nova requisição AS</h3>
 
-    <label>Número do voo</label>
-    <input id="voo" maxlength="6" placeholder="Ex: LA3211">
-
-    <label>Destino</label>
-    <input id="destino" maxlength="3" placeholder="Ex: JPA">
-
-    <label>Horário de decolagem</label>
-    <input id="decolagem" maxlength="5" placeholder="Ex: 14:05">
-
-    <label>Nome do passageiro</label>
-    <input id="pax" placeholder="Ex: SILVA/DIEGO">
-
-    <label>Cód. Reserva</label>
-    <input id="reserva" maxlength="6" placeholder="Ex: KIMDGO">
-
-    <label>Bagagem</label>
-    <input id="bagagem" maxlength="8" placeholder="Ex: LA561732">
-
-    <label>Horário da leitura</label>
-    <input id="horario_leitura" maxlength="5" placeholder="Ex: 12:37">
+    <input id="voo" placeholder="Voo">
+    <input id="destino" placeholder="Destino">
+    <input id="decolagem" placeholder="Decolagem">
+    <input id="pax" placeholder="Passageiro">
+    <input id="reserva" placeholder="Reserva">
+    <input id="bagagem" placeholder="Bagagem">
+    <input id="horario_leitura" placeholder="Leitura">
 
     <button onclick="enviarRequisicao()">Enviar</button>
 
-    <div style="height:20px;"></div>
-
-    <!-- ================= CHAT CIA (LATAM / GOL / AZUL) ================= -->
+    <!-- CHAT CIA -->
     <div class="chat-box latam">
       <div class="chat-header">Chat LATAM</div>
-
       <div class="chat-messages" id="chatMessagesCia"></div>
-
       <div class="chat-input">
-        <input type="text" id="inputMensagemCia" placeholder="Digite sua mensagem...">
+        <input type="text" id="inputMensagemCia" placeholder="Mensagem...">
         <button onclick="enviarMensagem()">➤</button>
       </div>
     </div>
 
   </div>
 
-  <!-- ================= CHAT GRU (ADMIN) ================= -->
+  <!-- CHAT GRU -->
   <div class="chat-container" id="chatContainer" style="display:none;">
 
-    <!-- LATAM -->
     <div class="chat-box latam">
-      <div class="chat-header">Chat LATAM</div>
-      <div class="chat-messages" id="chatLatam"></div>
+      <div class="chat-header">LATAM</div>
+      <div id="chatLatam"></div>
       <div class="chat-input">
-        <input type="text" id="inputLATAM" placeholder="Mensagem LATAM...">
+        <input id="inputLATAM">
         <button onclick="enviarMensagemGRU('LATAM')">➤</button>
       </div>
     </div>
 
-    <!-- GOL -->
     <div class="chat-box gol">
-      <div class="chat-header">Chat GOL</div>
-      <div class="chat-messages" id="chatGol"></div>
+      <div class="chat-header">GOL</div>
+      <div id="chatGol"></div>
       <div class="chat-input">
-        <input type="text" id="inputGOL" placeholder="Mensagem GOL...">
+        <input id="inputGOL">
         <button onclick="enviarMensagemGRU('GOL')">➤</button>
       </div>
     </div>
 
-    <!-- AZUL -->
     <div class="chat-box azul">
-      <div class="chat-header">Chat AZUL</div>
-      <div class="chat-messages" id="chatAzul"></div>
+      <div class="chat-header">AZUL</div>
+      <div id="chatAzul"></div>
       <div class="chat-input">
-        <input type="text" id="inputAZUL" placeholder="Mensagem AZUL...">
+        <input id="inputAZUL">
         <button onclick="enviarMensagemGRU('AZUL')">➤</button>
       </div>
     </div>
 
   </div>
 
-  <!-- ================= CONTEÚDO ================= -->
+  <!-- CONTEÚDO -->
   <div class="content">
+    <h2>Status de requisição</h2>
 
-    <div class="header-tabela">
-      <h2>Status de requisição</h2>
-
-      <button onclick="carregarTabela()" class="btn-refresh">
-        Atualizar
-      </button>
-
-      <label>Data:</label>
-      <input type="date" id="filtroData">
-    </div>
+    <input type="date" id="filtroData">
 
     <table>
       <thead>
         <tr>
           <th>Data</th>
           <th>Hora</th>
-          <th>Requisitado por</th>
+          <th>Colaborador</th>
           <th>Cia</th>
           <th>Voo</th>
           <th>Destino</th>
-          <th>Decolagem</th>
-          <th>Bagagem</th>
-          <th>Leitura</th>
-          <th>Passageiro</th>
-          <th>Reserva</th>
           <th>Status</th>
         </tr>
       </thead>
-
       <tbody id="tabela-requisicoes"></tbody>
     </table>
-
   </div>
 
 </div>
 </div>
 
-<script src="script.js"></script>
+<script src="script.js?v=1"></script>
 
 </body>
 </html>
