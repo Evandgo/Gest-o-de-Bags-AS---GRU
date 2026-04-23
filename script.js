@@ -11,7 +11,14 @@ const HEADERS = {
 
 // ================= DATA HOJE (BR) =================
 function getHoje() {
-  return new Date().toLocaleDateString("sv-SE"); // YYYY-MM-DD
+  const agora = new Date();
+
+  // força timezone Brasil
+  const brasil = new Date(
+    agora.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
+  );
+
+  return brasil.toISOString().split("T")[0];
 }
 
 // ================= FORMATADORES =================
