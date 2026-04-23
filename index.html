@@ -12,16 +12,28 @@
 <div id="loginContainer" class="login-bg">
   <div class="login-wrapper">
     <div class="login-card">
-      <p class="title">Informe suas credenciais</p>
+      <img id="circulo" src="circulo.png">
+      <p class="title">Acesso ao Sistema</p>
+      <p class="subtitle">Informe suas credenciais para continuar</p>
+      <br>
 
-      <input type="text" id="username" placeholder="Login">
-      <input type="password" id="password" placeholder="Senha">
+<div class="input-box">
+  <img src="avatar.png" class="input-icon">
+  <input type="text" id="username" placeholder="Login">
+</div>
 
+<div class="input-box">
+  <img src="cadeado.png" class="input-icon">
+  <input type="password" id="password" placeholder="Senha">
+</div>
+
+
+      <br><br>
       <button onclick="login()">Login</button>
-
+      <br><br><br>
       <p class="desenvolvedor">Developed by: Diego Pereira da Silva</p>
       <p class="analista">Analista Sênior Projetos Aeroportos</p>
-
+      
       <p id="error"></p>
     </div>
   </div>
