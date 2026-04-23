@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    
+
 <!-- ================= LOGIN ================= -->
 <div id="loginContainer" class="login-bg">
   <div class="login-wrapper">
@@ -27,7 +27,7 @@
   </div>
 </div>
 
-<!-- ================== SISTEMA ================= -->
+<!-- ================= SISTEMA ================= -->
 <div id="appContainer" style="display:none;">
 
 <header class="topbar" id="topbar">
@@ -43,7 +43,7 @@
 
 <div class="main">
 
-  <!-- SIDEBAR CIA -->
+  <!-- SIDEBAR -->
   <div class="sidebar" id="sidebarForm">
 
     <h3>Nova requisição AS</h3>
@@ -75,54 +75,44 @@
 
     <!-- CHAT CIA -->
     <div class="chat-box latam">
-
       <div class="chat-header">Chat LATAM</div>
 
-      <div class="chat-messages" id="chatMessagesCia">
-        <div class="msg other">
-          <strong>GRU</strong>
-          <p>Olá, posso ajudar?</p>
-        </div>
-      </div>
+      <div class="chat-messages" id="chatMessagesCia"></div>
 
       <div class="chat-input">
         <input type="text" id="inputMensagemCia" placeholder="Digite sua mensagem...">
         <button onclick="enviarMensagem()">➤</button>
       </div>
-
     </div>
 
   </div>
 
-  <!-- ================= CHAT GRU ================= -->
+  <!-- CHAT GRU -->
   <div class="chat-container" id="chatContainer" style="display:none;">
 
-    <!-- LATAM -->
     <div class="chat-box latam">
       <div class="chat-header">Chat LATAM</div>
       <div class="chat-messages" id="chatLatam"></div>
       <div class="chat-input">
-        <input type="text" id="inputLATAM" placeholder="Digite sua mensagem...">
+        <input type="text" id="inputLATAM">
         <button onclick="enviarMensagemGRU('LATAM')">➤</button>
       </div>
     </div>
 
-    <!-- GOL -->
     <div class="chat-box gol">
       <div class="chat-header">Chat GOL</div>
       <div class="chat-messages" id="chatGol"></div>
       <div class="chat-input">
-        <input type="text" id="inputGOL" placeholder="Digite sua mensagem...">
+        <input type="text" id="inputGOL">
         <button onclick="enviarMensagemGRU('GOL')">➤</button>
       </div>
     </div>
 
-    <!-- AZUL -->
     <div class="chat-box azul">
       <div class="chat-header">Chat AZUL</div>
       <div class="chat-messages" id="chatAzul"></div>
       <div class="chat-input">
-        <input type="text" id="inputAZUL" placeholder="Digite sua mensagem...">
+        <input type="text" id="inputAZUL">
         <button onclick="enviarMensagemGRU('AZUL')">➤</button>
       </div>
     </div>
@@ -131,10 +121,20 @@
 
   <!-- CONTEÚDO -->
   <div class="content">
-    <h2>
-      Status de requisição
-      <button onclick="carregarTabela()" class="btn-refresh">Atualizar</button>
-    </h2>
+
+    <!-- 🔥 HEADER COM FILTRO VISÍVEL -->
+    <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+
+      <h2 style="margin:0;">Status de requisição</h2>
+
+      <button onclick="carregarTabela()" class="btn-refresh">
+        Atualizar
+      </button>
+
+      <label><strong>Data:</strong></label>
+      <input type="date" id="filtroData">
+
+    </div>
 
     <table>
       <thead>
@@ -156,6 +156,7 @@
 
       <tbody id="tabela-requisicoes"></tbody>
     </table>
+
   </div>
 
 </div>

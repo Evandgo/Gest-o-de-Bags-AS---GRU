@@ -1,4 +1,4 @@
-const SUPABASE_URL = "https://sjzeuxhxbfmgiuikzzok.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://sjzeuxhxbfmgjuikzzok.supabase.co/rest/v1/";
 const SUPABASE_KEY = "sb_publishable_YyfWphLgZCtjpxIaaoKABQ_UC6HRsCj";
 
 let usuarioLogado = {};
@@ -9,26 +9,24 @@ const HEADERS = {
   "Content-Type": "application/json"
 };
 
+// ================= DATA HOJE (CORRIGIDO - BR) =================
+function getHoje() {
+  const hoje = new Date();
+  return hoje.toLocaleDateString("sv-SE"); // formato YYYY-MM-DD correto
+}
+
 // ================= FORMATADORES =================
 function formatarData(valor) {
   if (!valor) return "";
-  try {
-    return new Date(valor).toLocaleDateString("pt-BR");
-  } catch {
-    return valor;
-  }
+  return new Date(valor).toLocaleDateString("pt-BR");
 }
 
 function formatarHora(valor) {
   if (!valor) return "";
-  try {
-    return new Date(`1970-01-01T${valor}`).toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  } catch {
-    return valor;
-  }
+  return new Date(`1970-01-01T${valor}`).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 // ================= LOGIN =================
@@ -64,6 +62,11 @@ async function login() {
 
   aplicarTema(user.company);
   ajustarChatCia();
+
+  // 🔥 DEFINE DATA AQUI (GARANTIDO)
+  const inputFiltro = document.getElementById("filtroData");
+  if (inputFiltro) inputFiltro.value = getHoje();
+
   carregarTabela();
   carregarMensagens();
 
@@ -115,8 +118,8 @@ async function enviarRequisicao() {
   const agora = new Date();
 
   const payload = {
-    data: agora.toISOString().split("T")[0],
-    hora: agora.toISOString().substring(11,19),
+    data: getHoje(),
+    hora: agora.toLocaleTimeString("en-GB"),
     voo: voo.value.toUpperCase(),
     destino: destino.value.toUpperCase(),
     decolagem: decolagem.value,
@@ -143,10 +146,12 @@ async function enviarRequisicao() {
 // ================= LISTAR REQUISIÇÕES =================
 async function carregarTabela() {
 
-  const res = await fetch(`${SUPABASE_URL}requisicoes?select=*`, {
-    headers: HEADERS
-  });
+  const inputFiltro = document.getElementById("filtroData");
+  const filtroData = inputFiltro && inputFiltro.value ? inputFiltro.value : getHoje();
 
+  let url = `${SUPABASE_URL}requisicoes?select=*&data=eq.${filtroData}`;
+
+  const res = await fetch(url, { headers: HEADERS });
   const dados = await res.json();
 
   const tabela = document.getElementById("tabela-requisicoes");
@@ -192,134 +197,36 @@ async function carregarTabela() {
   });
 }
 
-// ================= ATUALIZAR STATUS =================
-async function atualizarStatus(id, novoStatus) {
-
-  await fetch(`${SUPABASE_URL}requisicoes?id=eq.${id}`, {
-    method: "PATCH",
-    headers: HEADERS,
-    body: JSON.stringify({ status: novoStatus })
-  });
-
-  carregarTabela();
-}
-
 // ================= CHAT =================
-async function enviarMensagem() {
-
-  const input = document.getElementById("inputMensagemCia");
-  const mensagem = input.value.trim();
-
-  if (!mensagem) return;
-
-  const agora = new Date();
-
-  await fetch(`${SUPABASE_URL}chat`, {
-    method: "POST",
-    headers: HEADERS,
-    body: JSON.stringify({
-      data: agora.toISOString().split("T")[0],
-      hora: agora.toISOString().substring(11,19),
-      empresa: usuarioLogado.empresa,
-      remetente: usuarioLogado.nome,
-      mensagem
-    })
-  });
-
-  input.value = "";
-  carregarMensagens();
-}
-
-// ================= CHAT GRU =================
-async function enviarMensagemGRU(empresa) {
-
-  const input = document.getElementById("input" + empresa);
-  const mensagem = input.value.trim();
-
-  if (!mensagem) return;
-
-  const agora = new Date();
-
-  await fetch(`${SUPABASE_URL}chat`, {
-    method: "POST",
-    headers: HEADERS,
-    body: JSON.stringify({
-      data: agora.toISOString().split("T")[0],
-      hora: agora.toISOString().substring(11,19),
-      empresa: empresa,
-      remetente: "GRU",
-      mensagem
-    })
-  });
-
-  input.value = "";
-  carregarMensagens();
-}
-
-// ================= LISTAR CHAT =================
 async function carregarMensagens() {
 
-  const res = await fetch(`${SUPABASE_URL}chat?select=*`, {
-    headers: HEADERS
-  });
+  const filtroData = document.getElementById("filtroData")?.value || getHoje();
 
+  let url = `${SUPABASE_URL}chat?select=*&data=eq.${filtroData}`;
+
+  const res = await fetch(url, { headers: HEADERS });
   const dados = await res.json();
 
-  if (usuarioLogado.empresa !== "GRU") {
+  const chat = document.getElementById("chatMessagesCia");
+  if (!chat) return;
 
-    const chat = document.getElementById("chatMessagesCia");
-    if (!chat) return;
+  chat.innerHTML = "";
 
-    chat.innerHTML = "";
+  dados.forEach(linha => {
 
-    dados.forEach(linha => {
+    if (linha.empresa !== usuarioLogado.empresa) return;
 
-      if (linha.empresa !== usuarioLogado.empresa) return;
+    const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
 
-      const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
+    chat.innerHTML += `
+      <div class="msg ${classe}">
+        <strong>${linha.remetente}</strong>
+        <p>${linha.mensagem}</p>
+      </div>
+    `;
+  });
 
-      chat.innerHTML += `
-        <div class="msg ${classe}">
-          <strong>${linha.remetente}</strong>
-          <p>${linha.mensagem}</p>
-        </div>
-      `;
-    });
-
-    chat.scrollTop = chat.scrollHeight;
-
-  } else {
-
-    const mapas = {
-      LATAM: "chatLatam",
-      GOL: "chatGol",
-      AZUL: "chatAzul"
-    };
-
-    Object.keys(mapas).forEach(emp => {
-
-      const chat = document.getElementById(mapas[emp]);
-      if (!chat) return;
-
-      chat.innerHTML = "";
-
-      dados.forEach(linha => {
-
-        if (linha.empresa !== emp) return;
-
-        const classe = (linha.remetente === "GRU") ? "me" : "other";
-
-        chat.innerHTML += `
-          <div class="msg ${classe}">
-            <strong>${linha.remetente}</strong>
-            <p>${linha.mensagem}</p>
-          </div>
-        `;
-      });
-
-      chat.scrollTop = chat.scrollHeight;
-    });
-  }
+  chat.scrollTop = chat.scrollHeight;
 }
 
 // ================= LIMPAR =================
