@@ -1,19 +1,20 @@
-const BASE_URL = "https://script.google.com/macros/s/AKfycbwiTSeahRXSg6EyVA_u4X_m_4rMVp_3diLrZnR7IoLfgPSFy0ZjDzvoLoU2Q7ldFn6U/exec";
+const SUPABASE_URL = "https://sjzeuxhxbfmgiuikzzok.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_YyfWphLgZCtjpxIaaoKABQ_UC6HRsCj";
 
 let usuarioLogado = {};
+
+// ================= HEADERS =================
+const HEADERS = {
+  apikey: SUPABASE_KEY,
+  Authorization: `Bearer ${SUPABASE_KEY}`,
+  "Content-Type": "application/json"
+};
 
 // ================= FORMATADORES =================
 function formatarData(valor) {
   if (!valor) return "";
-
-  if (typeof valor === "string" && valor.includes("/")) {
-    return valor;
-  }
-
   try {
-    const data = new Date(valor);
-    if (isNaN(data)) return valor;
-    return data.toLocaleDateString("pt-BR");
+    return new Date(valor).toLocaleDateString("pt-BR");
   } catch {
     return valor;
   }
@@ -21,16 +22,8 @@ function formatarData(valor) {
 
 function formatarHora(valor) {
   if (!valor) return "";
-
-  if (typeof valor === "string" && valor.includes(":") && valor.length <= 5) {
-    return valor;
-  }
-
   try {
-    const data = new Date(valor);
-    if (isNaN(data)) return valor;
-
-    return data.toLocaleTimeString("pt-BR", {
+    return new Date(`1970-01-01T${valor}`).toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit"
     });
@@ -39,54 +32,44 @@ function formatarHora(valor) {
   }
 }
 
-
 // ================= LOGIN =================
-function login() {
+async function login() {
 
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
-  fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({
-      action: "login",
-      username,
-      password
-    })
-  })
-  .then(res => res.json())
-  .then(handleLogin);
-}
+  const res = await fetch(
+     `${SUPABASE_URL}usuarios?username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
+    { headers: HEADERS }
+  );
 
+  const data = await res.json();
 
-// ================= HANDLE LOGIN =================
-function handleLogin(res) {
-
-  if (!res.success) {
+  if (data.length === 0) {
     document.getElementById("error").innerText = "Login inválido";
     return;
   }
 
+  const user = data[0];
+
   usuarioLogado = {
-    nome: res.name,
-    empresa: res.company
+    nome: user.name,
+    empresa: user.company
   };
 
   document.getElementById("loginContainer").style.display = "none";
   document.getElementById("appContainer").style.display = "block";
 
   document.querySelector(".bem-vindo").innerText =
-    `Bem-vindo (a), ${res.name}`;
+    `Bem-vindo (a), ${user.name}`;
 
-  aplicarTema(res.company);
+  aplicarTema(user.company);
   ajustarChatCia();
   carregarTabela();
   carregarMensagens();
 
   setInterval(carregarMensagens, 5000);
 }
-
 
 // ================= TEMA =================
 function aplicarTema(empresa) {
@@ -111,10 +94,8 @@ function aplicarTema(empresa) {
   }
 }
 
-
-// ================= AJUSTAR CHAT =================
+// ================= CHAT CONFIG =================
 function ajustarChatCia() {
-
   const chatBox = document.querySelector("#sidebarForm .chat-box");
   if (!chatBox) return;
 
@@ -128,246 +109,160 @@ function ajustarChatCia() {
   chatHeader.innerText = `Chat ${usuarioLogado.empresa}`;
 }
 
+// ================= ENVIAR REQUISIÇÃO =================
+async function enviarRequisicao() {
 
-// ================= CHAT CIA =================
-function enviarMensagem() {
+  const agora = new Date();
+
+  const payload = {
+    data: agora.toISOString().split("T")[0],
+    hora: agora.toTimeString().split(" ")[0],
+    voo: voo.value.toUpperCase(),
+    destino: destino.value.toUpperCase(),
+    decolagem: decolagem.value,
+    bagagem: bagagem.value.toUpperCase(),
+    leitura: horario_leitura.value,
+    passageiro: pax.value.toUpperCase(),
+    reserva: reserva.value.toUpperCase(),
+    status: "Pendente",
+    colaborador: usuarioLogado.nome,
+    empresa: usuarioLogado.empresa
+  };
+
+  await fetch(`${SUPABASE_URL}requisicoes`, {
+    method: "POST",
+    headers: HEADERS,
+    body: JSON.stringify(payload)
+  });
+
+  alert("Salvo com sucesso!");
+  limparCampos();
+  carregarTabela();
+}
+
+// ================= LISTAR REQUISIÇÕES =================
+async function carregarTabela() {
+
+  const res = await fetch(`${SUPABASE_URL}requisicoes?select=*`, {
+    headers: HEADERS
+  });
+
+  const dados = await res.json();
+
+  const tabela = document.getElementById("tabela-requisicoes");
+  tabela.innerHTML = "";
+
+  dados.forEach((linha) => {
+
+    if (usuarioLogado.empresa !== "GRU" && linha.empresa !== usuarioLogado.empresa) return;
+
+    let logo = "";
+    if (linha.empresa === "LATAM") logo = "logo_latam.png";
+    if (linha.empresa === "GOL") logo = "logo_gol.png";
+    if (linha.empresa === "AZUL") logo = "logo_azul.png";
+
+    let statusHTML = linha.status;
+
+    if (usuarioLogado.empresa === "GRU") {
+      statusHTML = `
+        <select onchange="atualizarStatus('${linha.id}', this.value)">
+          <option ${linha.status === "Pendente" ? "selected" : ""}>Pendente</option>
+          <option ${linha.status === "Liberado" ? "selected" : ""}>Liberado</option>
+          <option ${linha.status === "Negado" ? "selected" : ""}>Negado</option>
+        </select>
+      `;
+    }
+
+    tabela.innerHTML += `
+      <tr>
+        <td>${formatarData(linha.data)}</td>
+        <td>${formatarHora(linha.hora)}</td>
+        <td>${linha.colaborador}</td>
+        <td><img src="${logo}" class="logo-tabela"></td>
+        <td>${linha.voo}</td>
+        <td>${linha.destino}</td>
+        <td>${linha.decolagem}</td>
+        <td>${linha.bagagem}</td>
+        <td>${linha.leitura}</td>
+        <td>${linha.passageiro}</td>
+        <td>${linha.reserva}</td>
+        <td>${statusHTML}</td>
+      </tr>
+    `;
+  });
+}
+
+// ================= ATUALIZAR STATUS =================
+async function atualizarStatus(id, novoStatus) {
+
+  await fetch(`${SUPABASE_URL}requisicoes?id=eq.${id}`, {
+    method: "PATCH",
+    headers: HEADERS,
+    body: JSON.stringify({ status: novoStatus })
+  });
+
+  carregarTabela();
+}
+
+// ================= CHAT =================
+async function enviarMensagem() {
 
   const input = document.getElementById("inputMensagemCia");
   const mensagem = input.value.trim();
 
   if (!mensagem) return;
 
-  fetch(BASE_URL, {
+  await fetch(`${SUPABASE_URL}chat`, {
     method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    headers: HEADERS,
     body: JSON.stringify({
-      action: "enviarMensagem",
+      data: new Date().toISOString().split("T")[0],
+      hora: new Date().toTimeString().split(" ")[0],
       empresa: usuarioLogado.empresa,
       remetente: usuarioLogado.nome,
-      mensagem: mensagem
+      mensagem
     })
-  })
-  .then(() => {
-    input.value = "";
-    carregarMensagens();
   });
+
+  input.value = "";
+  carregarMensagens();
 }
 
+// ================= LISTAR CHAT =================
+async function carregarMensagens() {
 
-// ================= CHAT GRU =================
-function enviarMensagemGRU(empresa) {
-
-  const input = document.getElementById("input" + empresa);
-  const mensagem = input.value.trim();
-
-  if (!mensagem) return;
-
-  fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({
-      action: "enviarMensagem",
-      empresa: empresa,
-      remetente: "GRU",
-      mensagem: mensagem
-    })
-  })
-  .then(() => {
-    input.value = "";
-    carregarMensagens();
+  const res = await fetch(`${SUPABASE_URL}chat?select=*`, {
+    headers: HEADERS
   });
-}
 
+  const dados = await res.json();
 
-// ================= CARREGAR MENSAGENS =================
-function carregarMensagens() {
+  const chat = document.getElementById("chatMessagesCia");
+  if (!chat) return;
 
-  fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action: "listarMensagens" })
-  })
-  .then(res => res.json())
-  .then(dados => {
+  chat.innerHTML = "";
 
-    if (usuarioLogado.empresa !== "GRU") {
+  dados.forEach(linha => {
 
-      const chat = document.getElementById("chatMessagesCia");
-      if (!chat) return;
+    if (linha.empresa !== usuarioLogado.empresa) return;
 
-      chat.innerHTML = "";
+    const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
 
-      dados.forEach(linha => {
-
-        if (linha[2] !== usuarioLogado.empresa) return;
-
-        const remetente = linha[3];
-        const mensagem = linha[4];
-        const classe = (remetente === usuarioLogado.nome) ? "me" : "other";
-
-        chat.innerHTML += `
-          <div class="msg ${classe}">
-            <strong>${remetente}</strong>
-            <p>${mensagem}</p>
-          </div>
-        `;
-      });
-
-      chat.scrollTop = chat.scrollHeight;
-
-    } else {
-
-      const mapas = {
-        LATAM: "chatLatam",
-        GOL: "chatGol",
-        AZUL: "chatAzul"
-      };
-
-      Object.keys(mapas).forEach(emp => {
-
-        const chat = document.getElementById(mapas[emp]);
-        if (!chat) return;
-
-        chat.innerHTML = "";
-
-        dados.forEach(linha => {
-
-          if (linha[2] !== emp) return;
-
-          const remetente = linha[3];
-          const mensagem = linha[4];
-          const classe = (remetente === "GRU") ? "me" : "other";
-
-          chat.innerHTML += `
-            <div class="msg ${classe}">
-              <strong>${remetente}</strong>
-              <p>${mensagem}</p>
-            </div>
-          `;
-        });
-
-        chat.scrollTop = chat.scrollHeight;
-      });
-    }
-
+    chat.innerHTML += `
+      <div class="msg ${classe}">
+        <strong>${linha.remetente}</strong>
+        <p>${linha.mensagem}</p>
+      </div>
+    `;
   });
+
+  chat.scrollTop = chat.scrollHeight;
 }
-
-
-// ================= ENVIAR REQUISIÇÃO =================
-function enviarRequisicao() {
-
-  const dados = {
-    action: "salvar",
-    voo: voo.value.toUpperCase(),
-    destino: destino.value.toUpperCase(),
-    decolagem: decolagem.value,
-    bagagem: bagagem.value.toUpperCase(),
-    horario_leitura: horario_leitura.value,
-    pax: pax.value.toUpperCase(),
-    reserva: reserva.value.toUpperCase(),
-    colaborador: usuarioLogado.nome,
-    empresa: usuarioLogado.empresa
-  };
-
-  fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(dados)
-  })
-  .then(res => res.json())
-  .then(res => {
-    if (res.success) {
-      alert("Salvo com sucesso!");
-      limparCampos();
-      carregarTabela();
-    }
-  });
-}
-
 
 // ================= LIMPAR =================
 function limparCampos() {
   document.querySelectorAll(".sidebar input").forEach(i => i.value = "");
 }
-
-
-// ================= CARREGAR TABELA =================
-function carregarTabela() {
-
-  fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action: "listar" })
-  })
-  .then(res => res.json())
-  .then(dados => {
-
-    const tabela = document.getElementById("tabela-requisicoes");
-    tabela.innerHTML = "";
-
-    dados.forEach((linha, index) => {
-
-      if (usuarioLogado.empresa !== "GRU" && linha[11] !== usuarioLogado.empresa) return;
-
-      let logo = "";
-      if (linha[11] === "LATAM") logo = "logo_latam.png";
-      if (linha[11] === "GOL") logo = "logo_gol.png";
-      if (linha[11] === "AZUL") logo = "logo_azul.png";
-
-      let statusValor = String(linha[9]).trim();
-      let statusHTML = statusValor;
-
-      if (usuarioLogado.empresa === "GRU") {
-        statusHTML = `
-          <select onchange="atualizarStatus(${index}, this.value)">
-            <option ${statusValor === "Pendente" ? "selected" : ""}>Pendente</option>
-            <option ${statusValor === "Liberado" ? "selected" : ""}>Liberado</option>
-            <option ${statusValor === "Negado" ? "selected" : ""}>Negado</option>
-          </select>
-        `;
-      }
-
-      tabela.innerHTML += `
-        <tr>
-          <td>${formatarData(linha[0])}</td>
-          <td>${formatarHora(linha[1])}</td>
-          <td>${linha[10]}</td>
-          <td><img src="${logo}" class="logo-tabela"></td>
-          <td>${linha[2]}</td>
-          <td>${linha[3]}</td>
-          <td>${formatarHora(linha[4])}</td>
-          <td>${linha[5]}</td>
-          <td>${formatarHora(linha[6])}</td>
-          <td>${linha[7]}</td>
-          <td>${linha[8]}</td>
-          <td>${statusHTML}</td>
-        </tr>
-      `;
-    });
-
-  });
-}
-
-
-// ================= ATUALIZAR STATUS =================
-function atualizarStatus(linhaIndex, novoStatus) {
-
-  fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({
-      action: "atualizarStatus",
-      linha: linhaIndex + 2,
-      status: novoStatus
-    })
-  })
-  .then(res => res.json())
-  .then(() => {
-    carregarTabela();
-  });
-}
-
 
 // ================= RELÓGIO =================
 function atualizarDataHora() {
