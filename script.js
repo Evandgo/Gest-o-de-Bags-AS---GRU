@@ -9,7 +9,7 @@ const HEADERS = {
   "Content-Type": "application/json"
 };
 
-// ================= DATA BR (SEM UTC) =================
+// ================= TIMEZONE BRASIL =================
 function getDataHoraBrasil() {
   const agora = new Date();
 
@@ -17,24 +17,26 @@ function getDataHoraBrasil() {
     agora.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" })
   );
 
-  const data = brasil.toISOString().split("T")[0];
-  const hora = brasil.toTimeString().split(" ")[0];
-
-  return { data, hora };
+  return {
+    data: brasil.toISOString().split("T")[0],
+    hora: brasil.toTimeString().split(" ")[0]
+  };
 }
 
 // ================= FORMATADORES =================
 function formatarData(valor) {
   if (!valor) return "";
 
-  const data = valor.split("T")[0];
-  const [ano, mes, dia] = data.split("-");
+  const [ano, mes, dia] = valor.split("-");
   return `${dia}/${mes}/${ano}`;
 }
 
 function formatarHora(valor) {
   if (!valor) return "";
-  return valor.substring(0, 5);
+  return new Date(`1970-01-01T${valor}`).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 // ================= LOGIN =================
@@ -71,13 +73,15 @@ async function login() {
   aplicarTema(user.company);
   ajustarChatCia();
 
+  // define data atual no filtro
   const hoje = getDataHoraBrasil().data;
-  document.getElementById("filtroData").value = hoje;
+  const inputFiltro = document.getElementById("filtroData");
+  if (inputFiltro) inputFiltro.value = hoje;
 
   carregarTabela();
   carregarMensagens();
 
-  setInterval(carregarMensagens, 3000);
+  setInterval(carregarMensagens, 5000);
 }
 
 // ================= TEMA =================
@@ -145,6 +149,7 @@ async function enviarRequisicao() {
     body: JSON.stringify(payload)
   });
 
+  alert("Salvo com sucesso!");
   limparCampos();
   carregarTabela();
 }
@@ -152,7 +157,7 @@ async function enviarRequisicao() {
 // ================= LISTAR REQUISIÇÕES =================
 async function carregarTabela() {
 
-  const filtroData = document.getElementById("filtroData").value;
+  const filtroData = document.getElementById("filtroData")?.value;
 
   const res = await fetch(`${SUPABASE_URL}requisicoes?select=*`, {
     headers: HEADERS
@@ -165,7 +170,9 @@ async function carregarTabela() {
 
   dados.forEach((linha) => {
 
-    if (linha.data.split("T")[0] !== filtroData) return;
+    // 🔥 filtro definitivo
+    if (filtroData && linha.data !== filtroData) return;
+
     if (usuarioLogado.empresa !== "GRU" && linha.empresa !== usuarioLogado.empresa) return;
 
     let logo = "";
@@ -207,7 +214,7 @@ async function carregarTabela() {
 // ================= CHAT =================
 async function carregarMensagens() {
 
-  const filtroData = document.getElementById("filtroData").value;
+  const filtroData = document.getElementById("filtroData")?.value;
 
   const res = await fetch(`${SUPABASE_URL}chat?select=*`, {
     headers: HEADERS
@@ -215,7 +222,7 @@ async function carregarMensagens() {
 
   const dados = await res.json();
 
-  // ================= CIA =================
+  // ================= USUÁRIOS NORMAIS =================
   if (usuarioLogado.empresa !== "GRU") {
 
     const chat = document.getElementById("chatMessagesCia");
@@ -225,7 +232,7 @@ async function carregarMensagens() {
 
     dados.forEach(linha => {
 
-      if (linha.data.split("T")[0] !== filtroData) return;
+      if (filtroData && linha.data !== filtroData) return;
       if (linha.empresa !== usuarioLogado.empresa) return;
 
       const classe = (linha.remetente === usuarioLogado.nome) ? "me" : "other";
@@ -239,9 +246,10 @@ async function carregarMensagens() {
     });
 
     chat.scrollTop = chat.scrollHeight;
-  }
 
-  // ================= GRU =================
+  } 
+
+  // ================= GRU (ADMIN) =================
   else {
 
     const mapas = {
@@ -259,7 +267,7 @@ async function carregarMensagens() {
 
       dados.forEach(linha => {
 
-        if (linha.data.split("T")[0] !== filtroData) return;
+        if (filtroData && linha.data !== filtroData) return;
         if (linha.empresa !== emp) return;
 
         const classe = (linha.remetente === "GRU") ? "me" : "other";
@@ -299,32 +307,10 @@ async function enviarMensagem() {
   });
 
   input.value = "";
-  setTimeout(carregarMensagens, 200);
-}
 
-// ================= GRU CHAT =================
-async function enviarMensagemGRU(empresa) {
-
-  const input = document.getElementById("input" + empresa);
-  const mensagem = input.value.trim();
-  if (!mensagem) return;
-
-  const { data, hora } = getDataHoraBrasil();
-
-  await fetch(`${SUPABASE_URL}chat`, {
-    method: "POST",
-    headers: HEADERS,
-    body: JSON.stringify({
-      data,
-      hora,
-      empresa,
-      remetente: "GRU",
-      mensagem
-    })
-  });
-
-  input.value = "";
-  setTimeout(carregarMensagens, 200);
+  setTimeout(() => {
+    carregarMensagens();
+  }, 300);
 }
 
 // ================= LIMPAR =================
