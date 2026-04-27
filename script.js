@@ -69,7 +69,7 @@ async function login() {
       empresa: user.company
     };
 
-    // troca tela
+    // troca tela //
     document.getElementById("loginContainer").style.display = "none";
     document.getElementById("appContainer").style.display = "block";
 
