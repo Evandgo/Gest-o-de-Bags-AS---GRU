@@ -39,60 +39,49 @@ function formatarHora(valor) {
   });
 }
 
-// ================= LOGIN (CORRIGIDO) =================
+// ================= LOGIN =================
 async function login() {
 
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
-  try {
+  const res = await fetch(
+    `${SUPABASE_URL}usuarios?username=ilike.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
+    { headers: HEADERS }
+  );
 
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    });
+  const data = await res.json();
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      document.getElementById("error").innerText = "Login inválido";
-      return;
-    }
-
-    const user = data.user;
-
-    usuarioLogado = {
-      nome: user.name,
-      empresa: user.company
-    };
-
-    // troca tela ///
-    document.getElementById("loginContainer").style.display = "none";
-    document.getElementById("appContainer").style.display = "block";
-
-    document.querySelector(".bem-vindo").innerText =
-      `Bem-vindo (a), ${user.name}`;
-
-    aplicarTema(user.company);
-    ajustarChatCia();
-
-    // define data atual
-    const hoje = getDataHoraBrasil().data;
-    const inputFiltro = document.getElementById("filtroData");
-    if (inputFiltro) inputFiltro.value = hoje;
-
-    carregarTabela();
-    carregarMensagens();
-
-    setInterval(carregarMensagens, 5000);
-
-  } catch (erro) {
-    console.error("Erro no login:", erro);
-    document.getElementById("error").innerText = "Erro ao conectar ao servidor";
+  if (data.length === 0) {
+    document.getElementById("error").innerText = "Login inválido";
+    return;
   }
+
+  const user = data[0];
+
+  usuarioLogado = {
+    nome: user.name,
+    empresa: user.company
+  };
+
+  document.getElementById("loginContainer").style.display = "none";
+  document.getElementById("appContainer").style.display = "block";
+
+  document.querySelector(".bem-vindo").innerText =
+    `Bem-vindo (a), ${user.name}`;
+
+  aplicarTema(user.company);
+  ajustarChatCia();
+
+  // define data atual no filtro
+  const hoje = getDataHoraBrasil().data;
+  const inputFiltro = document.getElementById("filtroData");
+  if (inputFiltro) inputFiltro.value = hoje;
+
+  carregarTabela();
+  carregarMensagens();
+
+  setInterval(carregarMensagens, 5000);
 }
 
 // ================= TEMA =================
